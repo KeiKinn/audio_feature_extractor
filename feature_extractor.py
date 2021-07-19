@@ -39,11 +39,11 @@ def feature_extractor(args):
     print('#audios in meta csv: {}, #segments is: {}'.format(audios_sum, seg_sum))
 
     with h5py.File(hdf5_path, 'w') as hf:
-        melspectrogram_width = (seg_length - fc.n_fft) // fc.hop_length + 1  # left-aligned window
+        melspec_width = fu.get_melspec_width(seg_length)
 
         hf.create_dataset(name='audio_name', shape=(seg_sum,), dtype='S80')
         hf.create_dataset(name='label', shape=(seg_sum,), dtype='S80')
-        hf.create_dataset(name='logmel', shape=(seg_sum, melspectrogram_width, fc.n_mels), dtype=np.float32)
+        hf.create_dataset(name='logmel', shape=(seg_sum, melspec_width, fc.n_mels), dtype=np.float32)
 
         idy = 0
         for idx in range(audios_sum):
@@ -67,8 +67,9 @@ def feature_extractor(args):
 
 
 if __name__ == '__main__':
+    import constant as c
     # this part is for debugging
-    DATASET_DIR = '/home/xinjing/Documents/NAS/gPhD_Xin/ComParE21/workspace/'
+    DATASET_DIR = c.dataset
     WORKSPACE = '../workspace'
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', type=str, default='logmel')

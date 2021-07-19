@@ -8,7 +8,7 @@ import pandas as pd
 import feature_config as fc
 
 
-def read_meta_flusense(meta_csv, exclude):
+def read_flusense_meta(meta_csv, exclude):
     df = pd.read_csv(meta_csv)
     df = pd.DataFrame(df)
 
@@ -39,7 +39,7 @@ def read_meta_flusense(meta_csv, exclude):
     return audio_names, labels, intervals, int(count)
 
 
-def read_meta(meta_csv):
+def read_dicova_meta(meta_csv):
     df = pd.read_csv(meta_csv)
     df = pd.DataFrame(df)
 
