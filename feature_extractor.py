@@ -16,15 +16,16 @@ def feature_extractor(args):
     seg_duration = fc.seg_duration
     threshold = fc.threshold
 
-    dataset_path = os.path.join(dataset_dir, 'audio')
-    meta_path = os.path.join(dataset_dir, 'meta.csv')
+    dataset_path = os.path.join(dataset_dir, 'wav')
+    meta_path = os.path.join(dataset_dir, 'lab', 'devel.csv')
     hdf5_path = os.path.join(workspace, 'testing_features.hdf5')
     wavs_length = []
     seg_num = []
 
     time_begin = time.time()
 
-    filenames, labels, _ = fu.read_meta(meta_path)
+    # filenames, labels, _ = fu.read_meta(meta_path)
+    filenames, labels = fu.read_compare_metadata(meta_path)
 
     for filename in filenames:
         filepath = fu.get_file_path(dataset_path, filename)
@@ -38,10 +39,11 @@ def feature_extractor(args):
     print('#audios in meta csv: {}, #segments is: {}'.format(audios_sum, seg_sum))
 
     with h5py.File(hdf5_path, 'w') as hf:
+        melspectrogram_width = (seg_length - fc.n_fft) // fc.hop_length + 1  # left-aligned window
+
         hf.create_dataset(name='audio_name', shape=(seg_sum,), dtype='S80')
         hf.create_dataset(name='label', shape=(seg_sum,), dtype='S80')
-        hf.create_dataset(name='logmel', shape=(seg_sum, seg_length / fc.hop_length - 1, fc.n_mels),
-                          dtype=np.float32)
+        hf.create_dataset(name='logmel', shape=(seg_sum, melspectrogram_width, fc.n_mels), dtype=np.float32)
 
         idy = 0
         for idx in range(audios_sum):
@@ -57,7 +59,7 @@ def feature_extractor(args):
             for i, seg in enumerate(seg_data):
                 hf['audio_name'][idy] = filenames[idx].encode()
                 hf['label'][idy] = labels[idx]
-                hf['mel_spec'][idy] = fu.calculate_melspec_librosa(seg, sr)
+                hf['logmel'][idy] = fu.calculate_melspec_librosa(seg, sr)
                 idy += 1
     time_elapsed = time.time() - time_begin
     print('Done! Features extraction completed in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
@@ -66,8 +68,8 @@ def feature_extractor(args):
 
 if __name__ == '__main__':
     # this part is for debugging
-    DATASET_DIR = '../../workspace'
-    WORKSPACE = '../../workspace'
+    DATASET_DIR = '/home/xinjing/Documents/NAS/gPhD_Xin/ComParE21/workspace/'
+    WORKSPACE = '../workspace'
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', type=str, default='logmel')
     parser.add_argument('--dataset_dir', type=str, default=DATASET_DIR)
