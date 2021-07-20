@@ -47,7 +47,7 @@ def feature_extractor(args):
 
         idy = 0
         for idx in range(audios_sum):
-            fu.print_progress(idx, audios_sum, fc.base_number)
+            fu.print_progress(idx, audios_sum)
             wav_data, sr = fu.load_audio_data(dataset_path, filenames[idx])
             ispadding = fu.is_padding(wavs_length[idx], seg_num[idx], seg_length)
 

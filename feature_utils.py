@@ -177,6 +177,7 @@ def calculate_delta_librosa(data, order=1):
     return result
 
 
-def print_progress(idx, len, base):
+def print_progress(idx, len):
+    base = ceil(len / 10)
     if idx % base == base - 1:
         print('{:.2%}'.format(idx / len))
